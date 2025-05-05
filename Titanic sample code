@@ -1,0 +1,37 @@
+# 1. Импорт библиотек
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
+
+# 2. Загрузка данных
+df = pd.read_csv("https://raw.githubusercontent.com/datasciencedojo/datasets/master/titanic.csv")
+
+# 3. Упрощённый EDA
+print(df.head())
+print(df.isnull().sum())
+
+# 4. Обработка пропусков
+df['Age'].fillna(df['Age'].median(), inplace=True)
+df['Embarked'].fillna(df['Embarked'].mode()[0], inplace=True)
+
+# 5. Удалим ненужные колонки
+df.drop(['Name', 'Ticket', 'Cabin', 'PassengerId'], axis=1, inplace=True)
+
+# 6. Кодирование категориальных признаков
+df = pd.get_dummies(df, columns=['Sex', 'Embarked'], drop_first=True)
+
+# 7. Разделение признаков и целевой переменной
+X = df.drop('Survived', axis=1)
+y = df['Survived']
+
+# 8. Train/Test Split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# 9. Обучение модели
+model = LogisticRegression(max_iter=1000)
+model.fit(X_train, y_train)
+
+# 10. Оценка
+y_pred = model.predict(X_test)
+print("Accuracy:", accuracy_score(y_test, y_pred))
